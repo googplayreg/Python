@@ -20,3 +20,29 @@ def my_function(greeting, *names):
   for name in names:
     print(greeting, name)
 my_function("Hello", "Emil", "Tobias", "Linus")
+
+
+# **KWARGS
+"""
+If you do not know how many keyword arguments will be passed into your function, add two asterisks ** before the parameter name.
+This way, the function will receive a dictionary of arguments and can access the items accordingly:
+
+Example
+Using **kwargs to accept any number of keyword arguments:
+"""
+def my_function(**kid):
+  print("His last name is " + kid["lname"])
+
+my_function(fname = "Tobias", lname = "Refsnes")
+
+"""
+You can combine regular parameters with **kwargs.
+Regular parameters must come before **kwargs:
+"""
+def my_function(username, **details):
+  print("Username:", username)
+  print("Additional details:")
+  for key, value in details.items():
+    print(" ", key + ":", value)
+
+my_function("emil123", age = 25, city = "Oslo", hobby = "coding")
