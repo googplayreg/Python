@@ -22,5 +22,5 @@ for item in data["imdata"]:
 
     print(f"{dn:<50} {descr:<20} {speed:<7} {mtu:<6}")
 
-with open("Practice4\parsed_output.json", "w") as outfile:
-    json.dump(data, outfile, indent=4)
+# with open("Practice4\parsed_output.json", "w") as outfile:
+#     json.dump(data, outfile, indent=4)
