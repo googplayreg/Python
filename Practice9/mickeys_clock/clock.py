@@ -7,8 +7,7 @@ class Clock:
         # self.center = (screen_width // 2, screen_height // 2)
         self.center = (343, 380)
 
-        # Загружаем картинки рук
-        # .convert_alpha() обязателен, чтобы работала прозрачность фона
+        # Загружаем картинки стрелок
         self.min_hand_orig = pygame.image.load('mickeys_clock/images/minute_hand.png').convert()
         self.sec_hand_orig = pygame.image.load('mickeys_clock/images/second_hand.png').convert()
         
@@ -47,7 +46,7 @@ class Clock:
         new_rect = rotated_image.get_rect()
         
         # 3. Важнейший момент: приравниваем центр нового (повернутого) 
-        # прямоугольника к центру экрана. Так рука не будет "улетать".
+        # прямоугольника к центру экрана. Так стрелка не будет "улетать".
         new_rect.center = self.center
         
         # 4. Рисуем
