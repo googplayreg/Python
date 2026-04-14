@@ -11,7 +11,7 @@ def main():
     # Можешь изменить эти числа под размер твоего циферблата
     WIDTH, HEIGHT = 686, 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Интерактивные часы")
+    pygame.display.set_caption("Pygame Mickey's Clock")
 
     # Таймер для контроля частоты кадров
     fps_controller = pygame.time.Clock()
