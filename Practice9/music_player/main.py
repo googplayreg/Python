@@ -50,16 +50,20 @@ while running:
                     player.toggle_pause()
             elif event.key == pygame.K_s: # Stop
                 player.stop()
-            elif event.key == pygame.K_n: # Next
+            elif event.key == pygame.K_RIGHT: # Next
                 player.next_track()
-            elif event.key == pygame.K_b: # Back (Previous)
+            elif event.key == pygame.K_LEFT: # Back (Previous)
                 player.previous_track()
+            elif event.key == pygame.K_UP:
+                player.change_volume(0.05) # Прибавляем 5%
+            elif event.key == pygame.K_DOWN:
+                player.change_volume(-0.05) # Убавляем 5%
             elif event.key == pygame.K_q: # Quit
                 running = False
 
     # Б. Получение данных для отображения
     current_track = player.get_current_track_name()
-    status_text = "Воспроизведение" if player.is_playing else "Остановлено"
+    status_text = "Playing" if player.is_playing else "Stoped"
     
     # Получаем текущую позицию (в секундах)
     # get_pos() дает мс с начала текущего трека
@@ -72,20 +76,38 @@ while running:
     
     # Информация о треке
     pygame.draw.rect(screen, (40, 40, 40), (40, 90, 520, 100), border_radius=10)
-    draw_text(f"Сейчас играет:", font_small, GRAY, 60, 105)
+    draw_text(f"Now playing:", font_small, GRAY, 60, 105)
     draw_text(current_track, font_medium, WHITE, 60, 135)
     
     # Статус и время
-    draw_text(f"Статус: {status_text}", font_small, GREEN if player.is_playing else GRAY, 60, 210)
-    draw_text(f"Время: {pos_sec} сек.", font_small, WHITE, 450, 210)
+    draw_text(f"Status: {status_text}", font_small, GREEN if player.is_playing else GRAY, 60, 210)
+    draw_text(f"Time: {pos_sec} sec.", font_small, WHITE, 450, 210)
+
+    # Параметры полоски громкости
+    vol_bar_x = 400
+    vol_bar_y = 330
+    vol_bar_width = 150
+    vol_bar_height = 15
+    
+    # Рисуем блок громкости
+    draw_text(f"Громкость: {round(player.volume * 100)}%", font_small, GRAY, vol_bar_x, vol_bar_y - 25)
+    # Рисуем фон полоски (серый)
+    pygame.draw.rect(screen, (60, 60, 60), (vol_bar_x, vol_bar_y, vol_bar_width, vol_bar_height), border_radius=5)
+    
+    # Рисуем заполненную часть (зеленый)
+    # Ширина заполнения зависит от текущей громкости
+    current_vol_width = vol_bar_width * player.volume
+    pygame.draw.rect(screen, GREEN, (vol_bar_x, vol_bar_y, current_vol_width, vol_bar_height), border_radius=5)
     
     # Панель управления (подсказки)
-    y_hint = 280
+    y_hint = 260
     hints = [
         "P - Play/Pause (Играть/Пауза)",
         "S - Stop (Стоп)", 
-        "N - Next (Следующий)", 
-        "B - Back (Предыдущий)", 
+        "Right - Next (Следующий)", 
+        "Left - Back (Предыдущий)",
+        "Up - Louder (Громче)",
+        "Down - Quieter (Тише)",
         "Q - Quit (Выход)"
     ]
     
@@ -94,6 +116,6 @@ while running:
         y_hint += 25
 
     pygame.display.flip()
-    clock.tick(30) # 30 кадров в секунду достаточно для плеера
+    clock.tick(30) # 30 кадров в секунду
 
 pygame.quit()

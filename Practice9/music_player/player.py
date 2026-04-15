@@ -14,6 +14,8 @@ class MusicPlayer:
         self.current_track_index = 0
         self.is_playing = False
         self.is_paused = False
+        self.volume = 0.5  # Громкость по умолчанию (50%)
+        pygame.mixer.music.set_volume(self.volume)
         
         self.load_playlist()
 
@@ -60,6 +62,17 @@ class MusicPlayer:
         if self.playlist:
             self.current_track_index = (self.current_track_index - 1) % len(self.playlist)
             self.play()
+
+    def change_volume(self, delta):
+        """Изменяет громкость на delta (например, 0.05 или -0.05)."""
+        self.volume += delta
+        # Ограничиваем громкость в пределах от 0.0 до 1.0
+        if self.volume < 0:
+            self.volume = 0
+        elif self.volume > 1:
+            self.volume = 1
+    
+        pygame.mixer.music.set_volume(self.volume)
 
     def get_current_track_name(self):
         """Возвращает только название файла для отображения в UI."""

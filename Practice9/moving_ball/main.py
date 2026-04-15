@@ -16,7 +16,7 @@ RED = (255, 0, 0)
 # 2. Создаем объект шарика
 # Ставим его в центр экрана
 # Параметры: x, y, radius, color, step
-ball = Ball(WIDTH // 2, HEIGHT // 2, 25, RED, 20)
+ball = Ball(WIDTH // 2, HEIGHT // 2, 25, RED, 5)
 
 clock = pygame.time.Clock()
 running = True
@@ -27,7 +27,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # Здесь больше не проверяем стрелки через KEYDOWN
 
     # 2. Проверка зажатых клавиш (Continuous movement)
     keys = pygame.key.get_pressed()

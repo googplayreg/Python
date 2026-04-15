@@ -8,8 +8,8 @@ class Clock:
         self.center = (343, 380)
 
         # Загружаем картинки стрелок
-        self.min_hand_orig = pygame.image.load('mickeys_clock/images/minute_hand.png').convert()
-        self.sec_hand_orig = pygame.image.load('mickeys_clock/images/second_hand.png').convert()
+        self.min_hand_orig = pygame.image.load('Practice9/mickeys_clock/images/minute_hand.png').convert()
+        self.sec_hand_orig = pygame.image.load('Practice9/mickeys_clock/images/second_hand.png').convert()
         
         # Делаем фон стрелок прозрачным
         self.min_hand_orig.set_colorkey((255, 255, 255)) 

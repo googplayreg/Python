@@ -20,15 +20,9 @@ def main():
     # Передаем размеры экрана, чтобы часы знали, где их центр
     my_clock = Clock(WIDTH, HEIGHT)
 
-    # Попробуем загрузить фон, если он у тебя есть
-    # Если файла нет, программа просто пропустит этот шаг (благодаря try/except)
-    background = None
-    try:
-        background = pygame.image.load('mickeys_clock/images/clock_face.png').convert()
-        background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-    except Exception as e:
-        print(f"Фон не найден, ошибка: {e}")
-        background = None # Чтобы программа знала, что рисовать нечего
+    
+    background = pygame.image.load('Practice9/mickeys_clock/images/clock_face.png').convert()
+    background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
     # 3. ГЛАВНЫЙ ЦИКЛ
     running = True
