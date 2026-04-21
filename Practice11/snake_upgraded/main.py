@@ -5,21 +5,26 @@ import random
 pygame.init()
 
 # Константы экрана и сетки
-WIDTH, HEIGHT = 600, 400
+WIDTH, GAME_HEIGHT = 600, 600
+HEADER_HEIGHT = 60 
+SCREEN_HEIGHT = GAME_HEIGHT + HEADER_HEIGHT
 GRID_SIZE = 20  # Размер одной ячейки (квадратика)
 
-# Цвета (RGB)
+# Цвета
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-RED = (213, 50, 80)      # Для еды
+HEADER_COLOR = (45, 45, 45)
+RED = (213, 50, 80)      # Для еды (+1)
+ORANGE = (255, 165, 0)   # Для еды (+2)
+GOLD = (255, 215, 0)     # Для еды (+3, исчезающая)
 GREEN = (0, 255, 0)      # Для головы змейки
 DARK_GREEN = (0, 180, 0) # Для змейки
 YELLOW = (255, 255, 102) # Для текста счета
 GRAY = (30, 30, 30)      # Для сетки
 
 # Создание игрового окна
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Pygame Snake')
+screen = pygame.display.set_mode((WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Pygame Snake: Upgraded')
 
 # Настройка FPS (скорости игры)
 clock = pygame.time.Clock()
@@ -28,23 +33,25 @@ clock = pygame.time.Clock()
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
 
-defeat_sound = pygame.mixer.Sound("snake/assets/game over.mp3")
+defeat_sound = pygame.mixer.Sound("snake_upgraded/assets/game over.mp3")
 
 def draw_grid():
     """Отрисовка сетки"""
     # Вертикальные линии
     for x in range(0, WIDTH, GRID_SIZE):
-        pygame.draw.line(screen, GRAY, (x, 0), (x, HEIGHT))
+        pygame.draw.line(screen, GRAY, (x, HEADER_HEIGHT), (x, SCREEN_HEIGHT))
     # Горизонтальные линии
-    for y in range(0, HEIGHT, GRID_SIZE):
+    for y in range(HEADER_HEIGHT, SCREEN_HEIGHT, GRID_SIZE):
         pygame.draw.line(screen, GRAY, (0, y), (WIDTH, y))
 
-def show_score(score, level):
-    """Функция для отображения счета и уровня на экране"""
-    value = score_font.render(f"Счет: {score}  Уровень: {level}", True, YELLOW)
-    screen.blit(value, [5, 5])
+def show_interface(score, level):
+    """Отрисовка верхней панели со счетом"""
+    pygame.draw.rect(screen, HEADER_COLOR, [0, 0, WIDTH, HEADER_HEIGHT])
+    pygame.draw.line(screen, WHITE, (0, HEADER_HEIGHT), (WIDTH, HEADER_HEIGHT), 2)
+    val = score_font.render(f"SCORE: {score}   LEVEL: {level}", True, YELLOW)
+    screen.blit(val, [20, 10])
 
-def draw_snake(snake_list, x_change, y_change):
+def draw_snake(snake_list):
     """Отрисовка всех сегментов змейки"""
     for i, segment in enumerate(snake_list):
         # Проверяем является ли сегмент головой
@@ -54,25 +61,39 @@ def draw_snake(snake_list, x_change, y_change):
             # Рисуем глаза на голове
             pygame.draw.rect(screen, BLACK, [segment[0] + 3, segment[1] + 5, 4, 4])
             pygame.draw.rect(screen, BLACK, [segment[0] + 13, segment[1] + 5, 4, 4])
+            # Для контура клеток змейки
+            pygame.draw.rect(screen, BLACK, [segment[0], segment[1], GRID_SIZE, GRID_SIZE], 1)
 
         else:
             pygame.draw.rect(screen, DARK_GREEN, [segment[0], segment[1], GRID_SIZE, GRID_SIZE])
+            pygame.draw.rect(screen, BLACK, [segment[0], segment[1], GRID_SIZE, GRID_SIZE], 1)
 
 def generate_food(snake_list):
-    """Создание координат еды, которые не попадают на змейку"""
-    while True:
-        fx = round(random.randrange(0, WIDTH - GRID_SIZE) / float(GRID_SIZE)) * GRID_SIZE
-        fy = round(random.randrange(0, HEIGHT - GRID_SIZE) / float(GRID_SIZE)) * GRID_SIZE
+    """Создание координат еды"""
+    while True:  # задаем условия чтобы еда не попадала на саму змейку
+        fx = round(random.randrange(0, WIDTH - GRID_SIZE) / 20.0) * 20.0
+        fy = round(random.randrange(HEADER_HEIGHT, SCREEN_HEIGHT - GRID_SIZE) / 20.0) * 20.0
         if [fx, fy] not in snake_list:
-            return fx, fy
+            # Создаем еду случайного типа (с различной вероятностью появления)
+            chance = random.random()
+            if chance > 0.9: # 10% шанс на золотую
+                f_type = 3
+                timer = pygame.time.get_ticks() + 7000 # Исчезнет через 7 сек
+            elif chance > 0.7: # 20% шанс на оранжевую
+                f_type = 2
+                timer = None
+            else:
+                f_type = 1
+                timer = None
+            return {"pos": [fx, fy], "type": f_type, "timer": timer}
 
 def game_loop():
     game_over = False
     game_close = False
-    pygame.mixer.music.load("snake/assets/Axel F.mp3")
+    pygame.mixer.music.load("snake_upgraded/assets/Axel F.mp3")
     pygame.mixer.music.play(-1)
     x1 = WIDTH / 2
-    y1 = HEIGHT / 2
+    y1 = HEADER_HEIGHT + (GAME_HEIGHT / 2)
     x1_change = GRID_SIZE
     y1_change = 0
 
@@ -89,14 +110,14 @@ def game_loop():
     level = 1
     current_speed = 7 # Используем локальную переменную скорости
 
-    foodx, foody = generate_food(snake_List)
+    food = generate_food(snake_List)
 
     while not game_over:
 
         while game_close == True:
             screen.fill(BLACK)
             message = font_style.render("Game Over! Press Q to exit or R to restart", True, RED)
-            screen.blit(message, [WIDTH / 9, HEIGHT / 3])
+            screen.blit(message, [WIDTH / 9, SCREEN_HEIGHT / 3])
             pygame.mixer.music.stop()
             # defeat_sound.play()
             pygame.display.update()
@@ -131,13 +152,20 @@ def game_loop():
                     y1_change = GRID_SIZE
                     x1_change = 0
 
-        # Проверка на столкновение с границами
-        if x1 >= WIDTH or x1 < 0 or y1 >= HEIGHT or y1 < 0:
-            game_close = True
-
+        # Логика движения
         x1 += x1_change
         y1 += y1_change
+
+        # Проверка на столкновение с границами
+        if x1 >= WIDTH or x1 < 0 or y1 >= SCREEN_HEIGHT or y1 < HEADER_HEIGHT:
+            game_close = True
+
+        # Проверка таймера еды
+        if food["timer"] and pygame.time.get_ticks() > food["timer"]:
+            food = generate_food(snake_List) # Еда испарилась!
+
         screen.fill(BLACK)
+        draw_grid()
 
         # Логика роста хвоста
         snake_Head = [x1, y1]
@@ -152,21 +180,22 @@ def game_loop():
                 game_close = True
 
         # Логика еды и уровней
-        if x1 == foodx and y1 == foody:
-            score += 10
-            Length_of_snake += 1
-            foodx, foody = generate_food(snake_List) # Новое яблоко будет не на змейке
+        if x1 == food["pos"][0] and y1 == food["pos"][1]:
+            val = food["type"]
+            score += val * 10
+            Length_of_snake += val # Растем на 1, 2 или 3 ячейки!
+            food = generate_food(snake_List)
             
-            # Повышение уровня каждые 3 яблока (30 очков)
-            if score % 30 == 0:
+            if score % 50 == 0: # Повышаем скорость реже (каждые 50 очков)
                 level += 1
-                current_speed += 2
+                if current_speed < 15: current_speed += 1
 
-        # Отрисовка
-        draw_grid()
-        pygame.draw.rect(screen, RED, [foodx, foody, GRID_SIZE, GRID_SIZE])
-        draw_snake(snake_List, x1_change, y1_change)
-        show_score(score, level)
+        # Отрисовка еды (цвет зависит от типа)
+        f_color = RED if food["type"] == 1 else (ORANGE if food["type"] == 2 else GOLD)
+        pygame.draw.rect(screen, f_color, [food["pos"][0], food["pos"][1], GRID_SIZE, GRID_SIZE])
+        
+        draw_snake(snake_List)
+        show_interface(score, level)
         
         pygame.display.update()
         clock.tick(current_speed)

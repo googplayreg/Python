@@ -160,7 +160,9 @@ def game_loop():
             # Повышение уровня каждые 3 яблока (30 очков)
             if score % 30 == 0:
                 level += 1
-                current_speed += 2
+                # Увеличиваем скорость только если она еще не достигла 15
+                if current_speed < 15:
+                    current_speed += 2
 
         # Отрисовка
         draw_grid()
