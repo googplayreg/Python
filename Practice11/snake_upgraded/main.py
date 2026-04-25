@@ -112,14 +112,21 @@ def game_loop():
 
     food = generate_food(snake_List)
 
+    sound_played = False
+
     while not game_over:
 
         while game_close == True:
             screen.fill(BLACK)
             message = font_style.render("Game Over! Press Q to exit or R to restart", True, RED)
             screen.blit(message, [WIDTH / 9, SCREEN_HEIGHT / 3])
-            pygame.mixer.music.stop()
-            # defeat_sound.play()
+            
+            # Логика "однократного" звука
+            if not sound_played:
+                pygame.mixer.music.stop()  # Останавливаем фоновую музыку
+                defeat_sound.play()        # Запускаем звук проигрыша
+                sound_played = True        # Помечаем, что звук уже отыграл
+
             pygame.display.update()
 
             # Обработка действий для выхода и рестарта
@@ -188,7 +195,7 @@ def game_loop():
             
             if score % 50 == 0: # Повышаем скорость реже (каждые 50 очков)
                 level += 1
-                if current_speed < 15: current_speed += 1
+                if current_speed < 15: current_speed += 2
 
         # Отрисовка еды (цвет зависит от типа)
         f_color = RED if food["type"] == 1 else (ORANGE if food["type"] == 2 else GOLD)

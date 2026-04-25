@@ -160,6 +160,7 @@ while running:
                 # 1. Обнуляем логические переменные
                 score = 0
                 enemy_speed = 10
+                bg_speed = 8
                 game_over = False
                 
                 # 2. Сбрасываем игрока на стартовую позицию
@@ -199,7 +200,7 @@ while running:
         if pygame.sprite.spritecollideany(P1, coins):
             old_score = score
             score += C1.value
-            coin_sound.play()
+            # coin_sound.play()
             
             # Эффекты для жирных монет
             if C1.value == 5:
