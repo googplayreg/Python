@@ -1,0 +1,392 @@
+[
+    {
+        "first_name": "Гюльнара",
+        "last_name": "Алиева",
+        "email": "gulya@list.ru",
+        "birthday": "1990-02-28",
+        "group": "Other",
+        "phones": [
+            {
+                "phone": "87056667788",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Руслан",
+        "last_name": "Ибрагимов",
+        "email": "ruslan@kaz.kz",
+        "birthday": "1984-06-17",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87775556677",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Айсулу",
+        "last_name": "Талгатова",
+        "email": "aisulu@mail.kz",
+        "birthday": "1997-04-01",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87714445566",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Антон",
+        "last_name": "Макаров",
+        "email": "anton@gmail.com",
+        "birthday": "1990-03-21",
+        "group": "Other",
+        "phones": [
+            {
+                "phone": "87471112233",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Ольга",
+        "last_name": "Романова",
+        "email": "olga@yandex.ru",
+        "birthday": "1994-11-25",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87053332211",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Сергей",
+        "last_name": "Козлов",
+        "email": "serg@mail.ru",
+        "birthday": "1986-11-11",
+        "group": "Other",
+        "phones": [
+            {
+                "phone": "87013334455",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Алексей",
+        "last_name": "Петров",
+        "email": "alex@tech.kz",
+        "birthday": "1990-01-01",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87770001122",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Иван",
+        "last_name": "Иванов",
+        "email": "ivan@mail.ru",
+        "birthday": "1995-05-15",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87011112233",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Алишер",
+        "last_name": "Усманов",
+        "email": "alisher@biz.kz",
+        "birthday": "1983-10-31",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87057778899",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Юлия",
+        "last_name": "Захарова",
+        "email": "yulia@list.ru",
+        "birthday": "1995-02-14",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87711119988",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Артем",
+        "last_name": "Волков",
+        "email": "volkov@mail.ru",
+        "birthday": "1992-03-12",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87012223344",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Дарья",
+        "last_name": "Смирнова",
+        "email": "dasha@yandex.ru",
+        "birthday": null,
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87054443322",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Елена",
+        "last_name": "Петрова",
+        "email": "elena@gmail.com",
+        "birthday": "1985-07-25",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87021110099",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Марат",
+        "last_name": "Исмаилов",
+        "email": "marat@company.kz",
+        "birthday": "1991-06-22",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87015554433",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Зарина",
+        "last_name": "Ахметова",
+        "email": "zarina@mail.ru",
+        "birthday": "1996-01-15",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87028889900",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Мадина",
+        "last_name": "Касимова",
+        "email": "madina@gmail.com",
+        "birthday": "1998-04-20",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87472223344",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Дмитрий",
+        "last_name": "Соколов",
+        "email": "dima@tech.kz",
+        "birthday": "1988-09-14",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87471234567",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Берик",
+        "last_name": "Казахстанов",
+        "email": "berik@kaz.kz",
+        "birthday": "2000-12-31",
+        "group": "Other",
+        "phones": [
+            {
+                "phone": "87479998877",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Виктор",
+        "last_name": "Морозов",
+        "email": "vitya@gmail.com",
+        "birthday": "1975-08-19",
+        "group": "Other",
+        "phones": [
+            {
+                "phone": "87051112233",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Арман",
+        "last_name": "Омаров",
+        "email": "arman@corp.kz",
+        "birthday": "1982-12-12",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87027776655",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Максим",
+        "last_name": "Орлов",
+        "email": "max@gmail.com",
+        "birthday": "1989-09-09",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87029990011",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Анна",
+        "last_name": "Павлова",
+        "email": "anna@pavl.ru",
+        "birthday": "1999-10-10",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87470009988",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Светлана",
+        "last_name": "Кузнецова",
+        "email": "sveta@yandex.ru",
+        "birthday": "1993-05-30",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87019998877",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Динара",
+        "last_name": "Есенова",
+        "email": "dina@mail.kz",
+        "birthday": "1992-07-07",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87016667788",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Бауыржан",
+        "last_name": "Садвакасов",
+        "email": "bauka@kaz.kz",
+        "birthday": "1994-11-05",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87773334455",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Канат",
+        "last_name": "Нуржанов",
+        "email": "kanat@kazpost.kz",
+        "birthday": "1980-05-05",
+        "group": "Other",
+        "phones": [
+            {
+                "phone": "87474445566",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Игорь",
+        "last_name": "Степанов",
+        "email": "igor@it.kz",
+        "birthday": "1987-03-03",
+        "group": "Work",
+        "phones": [
+            {
+                "phone": "87772221100",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Наталья",
+        "last_name": "Белова",
+        "email": "natasha@yandex.ru",
+        "birthday": "1991-08-08",
+        "group": "Friends",
+        "phones": [
+            {
+                "phone": "87024445566",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Камила",
+        "last_name": "Байжакова",
+        "email": "kami@corp.kz",
+        "birthday": "1997-12-25",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87058889900",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "first_name": "Мария",
+        "last_name": "Сидорова",
+        "email": "masha@gmail.com",
+        "birthday": "1998-10-20",
+        "group": "Family",
+        "phones": [
+            {
+                "phone": "87025556677",
+                "type": "mobile"
+            }
+        ]
+    }
+]
