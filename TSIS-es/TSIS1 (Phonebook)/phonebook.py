@@ -3,6 +3,25 @@ import csv
 import json
 from connect import get_connection
 
+def get_available_groups():
+    """Возвращает список имен существующих групп"""
+    conn = get_connection()
+    if not conn: return []
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT name FROM groups ORDER BY name;")
+            return [row[0] for row in cur.fetchall()]
+    finally:
+        conn.close()
+
+def show_groups_ui():
+    """Печатает список групп в удобном виде"""
+    groups = get_available_groups()
+    if groups:
+        print("\nСуществующие группы:", ", ".join(groups))
+    else:
+        print("\nГрупп пока нет. Вы можете создать новую, введя любое название.")
+
 def export_to_json(file_path="TSIS-es/TSIS1 (Phonebook)/contacts.json"):
     """Экспортирует всех контактов и их телефоны в JSON"""
     conn = get_connection()
@@ -76,38 +95,39 @@ def import_from_json(file_path="TSIS-es/TSIS1 (Phonebook)/contacts.json"):
         conn.close()
 
 def advanced_view():
-    """Интерактивное меню просмотра с пагинацией и сортировкой"""
     page = 1
     size = 5
-    sort_by = 'name' # По умолчанию
+    sort_by = 'name'
     group_filter = None
 
     while True:
         conn = get_connection()
         try:
             with conn.cursor() as cur:
-                # Вызываем функцию из БД
                 cur.execute("SELECT * FROM get_contacts_advanced(%s, %s, %s, %s)", 
                             (size, (page-1)*size, group_filter, sort_by))
                 records = cur.fetchall()
 
-                print(f"\n--- Страница {page} (Сортировка: {sort_by}) ---")
+                print(f"\n--- Страница {page} | Фильтр: {group_filter or 'Все'} | Сортировка: {sort_by} ---")
+                if not records:
+                    print("Записей нет.")
                 for r in records:
                     print(f"ID: {r[0]} | {r[1]} {r[2]} | Email: {r[3]} | Группа: {r[5]}")
 
-                print("\nНавигация: [n] След. | [p] Пред. | [s] Сортировка | [f] Фильтр групп | [q] Выход")
+                print("\n[n] Вперед | [p] Назад | [s] Сортировка | [f] Фильтр групп | [c] Сброс фильтра | [q] Выход")
                 cmd = input(">> ").lower()
 
                 if cmd == 'n': page += 1
                 elif cmd == 'p': page = max(1, page - 1)
                 elif cmd == 'q': break
+                elif cmd == 'c': group_filter = None
                 elif cmd == 's':
-                    print("1. По имени | 2. По дню рождения | 3. По дате добавления")
-                    s_choice = input()
+                    print("1. Имя | 2. День рождения | 3. Дата добавления")
+                    s_choice = input(">> ")
                     sort_by = {'1':'name', '2':'birthday', '3':'date'}.get(s_choice, 'name')
                 elif cmd == 'f':
-                    group_filter = input("Введите ID группы (или пусто для сброса): ")
-                    group_filter = int(group_filter) if group_filter else None
+                    show_groups_ui()
+                    group_filter = input("Введите название группы для фильтрации: ").strip()
         finally:
             conn.close()
 
@@ -164,16 +184,13 @@ def main_menu():
     print("2. [Поиск] Найти по имени/email/телефону")
     print("3. [Контакт] Добавить/Обновить (UPSERT)")
     print("4. [Группы] Переместить контакт в группу")
-    print("5. [Телефоны] Добавить доп. номер")
+    print("5. [Телефоны] Добавить дополнительный номер")
     print("6. [Импорт/Экспорт] Работа с JSON/CSV")
     print("7. [Удаление] Удалить контакт")
     print("0. Выход")
     print("="*40)
 
 def main():
-    # Инициализация таблиц при запуске (код из Этапа 1)
-    # create_tables() 
-
     while True:
         main_menu()
         choice = input("Выберите действие: ").strip()
@@ -196,40 +213,48 @@ def main():
             f_name = input("Имя: ")
             l_name = input("Фамилия: ")
             phone = input("Телефон: ")
-            email = input("Email (можно пропустить): ")
-            birthday = input("День рождения (ГГГГ-ММ-ДД, можно пропустить): ")
+            email = input("Email: ")
+            bday = input("День рождения (ГГГГ-ММ-ДД) или пусто: ")
             
             conn = get_connection()
             with conn.cursor() as cur:
                 cur.execute("CALL upsert_full_contact(%s, %s, %s, %s, %s)", 
-                            (f_name, l_name, phone, email or None, birthday or None))
+                            (f_name, l_name, phone, email or None, bday or None))
                 conn.commit()
-            print("Контакт успешно сохранен!")
+            print(f"Данные контакта '{f_name} {l_name}' успешно обновлены/добавлены.")
             conn.close()
 
         elif choice == '4':
-            name = input("Имя контакта: ")
-            group = input("Название группы: ")
-            conn = get_connection()
-            with conn.cursor() as cur:
-                cur.execute("CALL move_to_group(%s, %s)", (name, group))
-                conn.commit()
-            print(f'Контакт {name}, перемещен (если был), или добавлен в новую группу.')
-            conn.close()
-
-        elif choice == '5':
-            # Добавление дополнительного номера (реализация 1-ко-многим)
-            name = input("Введите имя или фамилию контакта: ")
-            new_phone = input("Введите новый номер телефона: ")
-            p_type = input("Тип номера (home, work, mobile): ").strip().lower()
-            if p_type not in ['home', 'work', 'mobile']:
-                p_type = 'mobile' # Значение по умолчанию
+            f_name = input("Имя контакта: ")
+            l_name = input("Фамилия контакта: ")
+            show_groups_ui()
+            group_name = input("Введите название группы: ").strip()
             
             conn = get_connection()
             with conn.cursor() as cur:
-                cur.execute("CALL add_phone(%s, %s, %s)", (name, new_phone, p_type))
+                cur.execute("CALL move_to_group(%s, %s, %s)", (f_name, l_name, group_name))
                 conn.commit()
-            print(f"Дополнительный номер для '{name}' успешно добавлен.")
+            print("Готово!")
+            conn.close()
+
+        elif choice == '5':
+            f_name = input("Имя контакта: ")
+            l_name = input("Фамилия контакта: ")
+            new_phone = input("Новый номер: ")
+            p_type = input("Тип (mobile/work/home): ")
+            
+            conn = get_connection()
+            with conn.cursor() as cur:
+                # Находим ID по имени и фамилии
+                cur.execute("SELECT contact_id FROM contacts WHERE first_name=%s AND last_name=%s", (f_name, l_name))
+                res = cur.fetchone()
+                if res:
+                    cur.execute("INSERT INTO phones (contact_id, phone, type) VALUES (%s, %s, %s)", 
+                                (res[0], new_phone, p_type or 'mobile'))
+                    conn.commit()
+                    print("Номер добавлен.")
+                else:
+                    print("Контакт не найден.")
             conn.close()
 
         elif choice == '6':
@@ -242,17 +267,15 @@ def main():
                 import_from_csv(file_name)
 
         elif choice == '7':
-            # Удаление контакта по имени или номеру телефона
-            target = input("Введите имя, фамилию или телефон для удаления: ")
-            confirm = input(f"Вы уверены, что хотите удалить '{target}'? (y/n): ")
-            
+            f_name = input("Имя для удаления: ")
+            l_name = input("Фамилия для удаления: ")
+            confirm = input(f"Вы уверены что хотите удалить {f_name} {l_name}? (y/n): ")
             if confirm.lower() == 'y':
                 conn = get_connection()
                 with conn.cursor() as cur:
-                    # Вызываем процедуру удаления
-                    cur.execute("CALL delete_contact_adv(%s)", (target,))
+                    cur.execute("CALL delete_contact_safe(%s, %s)", (f_name, l_name))
                     conn.commit()
-                print("Запись (если она существовала) удалена.")
+                print("Запись удалена.")
                 conn.close()
 
         elif choice == '0':

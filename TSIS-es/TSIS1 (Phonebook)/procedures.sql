@@ -41,24 +41,24 @@ $$ LANGUAGE plpgsql;
 
 -- ПРОЦЕДУРА СМЕНЫ ГРУППЫ (создает группу, если её нет)
 CREATE OR REPLACE PROCEDURE move_to_group(
-    p_contact_name VARCHAR,
+    p_f_name VARCHAR,
+    p_l_name VARCHAR, -- Требуем и имя, и фамилию для точности
     p_group_name VARCHAR
 )
 AS $$
 DECLARE
     v_group_id INT;
 BEGIN
-    -- 1. Ищем или создаем группу
-    INSERT INTO groups (name)
-    VALUES (p_group_name)
-    ON CONFLICT (name) DO NOTHING;
-    
-    SELECT id INTO v_group_id FROM groups WHERE name = p_group_name;
+    -- Создаем группу, если её нет
+    INSERT INTO groups (name) VALUES (p_group_name)
+    ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+    RETURNING id INTO v_group_id;
 
-    -- 2. Обновляем контакт 
-    UPDATE contacts 
-    SET group_id = v_group_id 
-    WHERE first_name = p_contact_name OR last_name = p_contact_name;
+    -- Обновляем контакт только при совпадении пары Имя + Фамилия
+    UPDATE contacts SET group_id = v_group_id 
+    WHERE first_name = p_f_name AND last_name = p_l_name;
+    
+    -- Если контакт не найден, процедура просто ничего не изменит (безопасно)
 END;
 $$ LANGUAGE plpgsql;
 
@@ -68,7 +68,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION get_contacts_advanced(
     p_limit INT, 
     p_offset INT, 
-    p_group_id INT DEFAULT NULL,
+    p_group_name TEXT DEFAULT NULL,
     p_sort_by TEXT DEFAULT 'name'
 )
 RETURNS TABLE (
@@ -84,7 +84,7 @@ BEGIN
     SELECT c.contact_id, c.first_name, c.last_name, c.email, c.birthday, g.name
     FROM contacts c
     LEFT JOIN groups g ON c.group_id = g.id
-    WHERE (p_group_id IS NULL OR c.group_id = p_group_id)
+    WHERE (p_group_name IS NULL OR g.name ILIKE p_group_name)
     ORDER BY 
         CASE WHEN p_sort_by = 'name' THEN c.first_name END ASC,
         CASE WHEN p_sort_by = 'birthday' THEN c.birthday::text END ASC,
@@ -96,41 +96,43 @@ $$ LANGUAGE plpgsql;
 
 
 -- УДАЛЕНИЕ КОНТАКТА
-CREATE OR REPLACE PROCEDURE delete_contact_adv(p_identifier TEXT)
+CREATE OR REPLACE PROCEDURE delete_contact_safe(
+    p_f_name VARCHAR,
+    p_l_name VARCHAR
+)
 AS $$
 BEGIN
-    -- Удаляем контакт, если идентификатор совпал с именем, фамилией 
-    -- или любым его номером в связанной таблице phones
-    DELETE FROM contacts 
-    WHERE first_name = p_identifier 
-       OR last_name = p_identifier
-       OR contact_id IN (SELECT contact_id FROM phones WHERE phone = p_identifier);
+    -- Удаляем только конкретного человека по паре Имя+Фамилия
+    DELETE FROM contacts WHERE first_name = p_f_name AND last_name = p_l_name;
 END;
 $$ LANGUAGE plpgsql;
 
 
 
 -- ДОБАВЛЕНИЕ/ОБНОВЛЕНИЕ КОНТАКТА
-CREATE OR REPLACE PROCEDURE upsert_contact(
+CREATE OR REPLACE PROCEDURE upsert_full_contact(
     p_first_name VARCHAR,
     p_last_name VARCHAR,
-    p_phone VARCHAR
+    p_phone VARCHAR,
+    p_email VARCHAR,
+    p_birthday DATE
 )
 AS $$
 DECLARE
     v_contact_id INT;
 BEGIN
-    -- 1. Работаем с таблицей контактов (UPSERT)
-    INSERT INTO contacts (first_name, last_name)
-    VALUES (p_first_name, p_last_name)
+    -- 1. Вставляем или обновляем основные данные
+    INSERT INTO contacts (first_name, last_name, email, birthday)
+    VALUES (p_first_name, p_last_name, p_email, p_birthday)
     ON CONFLICT (first_name, last_name) 
-    DO UPDATE SET first_name = EXCLUDED.first_name -- Просто "обновляем" на то же самое, чтобы получить ID
+    DO UPDATE SET 
+        email = EXCLUDED.email, 
+        birthday = EXCLUDED.birthday
     RETURNING contact_id INTO v_contact_id;
 
-    -- 2. Работаем с таблицей телефонов
-    -- Если такой номер уже привязан к этому контакту, ничего не делаем
+    -- 2. Добавляем телефон
     INSERT INTO phones (contact_id, phone, type)
     VALUES (v_contact_id, p_phone, 'mobile')
-    ON CONFLICT DO NOTHING; 
+    ON CONFLICT DO NOTHING;
 END;
 $$ LANGUAGE plpgsql;

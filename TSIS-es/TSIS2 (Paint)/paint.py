@@ -1,6 +1,6 @@
 import pygame
 from datetime import datetime
-import tools # Импортируем наш файл с инструментами
+import tools # Импортируем файл с инструментами
 
 # Инициализация
 pygame.init()
@@ -11,6 +11,7 @@ pygame.display.set_caption("Pygame Paint Advanced (TSIS Edition)")
 # Цвета
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
 PANEL_GRAY = (210, 210, 210)
+NOTIFY_COLOR = (50, 50, 50)  # Для уведомления
 COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (0, 255, 255), (255, 0, 255)]
 
 # Настройки
@@ -28,8 +29,11 @@ active_text, is_typing, text_pos = "", False, (0, 0)
 
 canvas = pygame.Surface((WIDTH, HEIGHT - PANEL_HEIGHT))
 canvas.fill(WHITE)
+main_font = pygame.font.SysFont("Arial", 36)
 font = pygame.font.SysFont("Arial", 22)
 ui_font = pygame.font.SysFont("Arial", 20, bold=True)
+
+save_notify_time = 0   # Время для сообщения
 
 def draw_button(surf, rect, text, is_active, color=PANEL_GRAY):
     pygame.draw.rect(surf, color, rect, border_radius=8)
@@ -39,15 +43,18 @@ def draw_button(surf, rect, text, is_active, color=PANEL_GRAY):
         text_surf = font.render(text, True, BLACK)
         surf.blit(text_surf, text_surf.get_rect(center=rect.center))
 
-# --- РАЗМЕТКА КНОПОК ---
+# Разметка кнопок
 shapes_and_tools = ['pencil', 'line', 'rect', 'circle', 'square', 'rtriangle', 'eqtriangle', 'rhombus', 'fill', 'text', 'eraser']
 tool_btns = {name: pygame.Rect(10 + i*75, 45, 70, 40) for i, name in enumerate(shapes_and_tools)}
 size_btns = {BRUSH_SIZES[i]: pygame.Rect(10 + i*55, 110, 45, 35) for i in range(len(BRUSH_SIZES))}
 color_btns = {color: pygame.Rect(850 + i*50, 45, 40, 40) for i, color in enumerate(COLORS)}
 
 running = True
+clock = pygame.time.Clock()
+
 while running:
     mouse_pos = pygame.mouse.get_pos()
+    current_time = pygame.time.get_ticks()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -56,16 +63,21 @@ while running:
         if event.type == pygame.KEYDOWN:
             if is_typing:
                 if event.key == pygame.K_RETURN:
-                    txt_img = font.render(active_text, True, current_color)
+                    txt_img = main_font.render(active_text, True, current_color)
                     canvas.blit(txt_img, text_pos)
                     active_text, is_typing = "", False
-                elif event.key == pygame.K_BACKSPACE: active_text = active_text[:-1]
-                else: active_text += event.unicode
+                elif event.key == pygame.K_ESCAPE:
+                    active_text, is_typing = "", False
+                elif event.key == pygame.K_BACKSPACE: 
+                    active_text = active_text[:-1]
+                else: 
+                    active_text += event.unicode
             else:
                 if pygame.K_1 <= event.key <= pygame.K_6:
                     brush_size = BRUSH_SIZES[event.key - pygame.K_1]
                 if event.key == pygame.K_s and (pygame.key.get_mods() & pygame.KMOD_CTRL):
-                    pygame.image.save(canvas, f"paint_{datetime.now().strftime('%H%M%S')}.png")
+                    pygame.image.save(canvas, f"paint_{datetime.now().strftime('%H-%M-%S_%d-%m-%Y')}.png")
+                    save_notify_time = current_time + 2000   # Показать уведомление на 2 секунды
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.pos[1] < PANEL_HEIGHT:
@@ -129,7 +141,7 @@ while running:
         screen.blit(temp, (0, PANEL_HEIGHT))
 
     if is_typing:
-        t_img = font.render(active_text + "|", True, current_color)
+        t_img = main_font.render(active_text + "|", True, current_color)
         screen.blit(t_img, (text_pos[0], text_pos[1] + PANEL_HEIGHT))
 
     # Панель интерфейса
@@ -145,6 +157,14 @@ while running:
     screen.blit(ui_font.render("Palette:", True, BLACK), (850, 15))
     for c, r in color_btns.items(): draw_button(screen, r, "", current_color == c, c)
 
+    # Отрисовка уведомления о сохранении картинки
+    if current_time < save_notify_time:
+        notify_rect = pygame.Rect(WIDTH - 180, HEIGHT - 60, 160, 40)
+        pygame.draw.rect(screen, NOTIFY_COLOR, notify_rect, border_radius=10)
+        msg = ui_font.render("Image Saved!", True, WHITE)
+        screen.blit(msg, msg.get_rect(center=notify_rect.center))
+
     pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()
