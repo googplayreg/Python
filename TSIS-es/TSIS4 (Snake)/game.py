@@ -82,7 +82,7 @@ def run_game(screen, username, settings):
         r = random.random()
         if r > 0.9: return {"pos": pos, "type": 3, "expires": pygame.time.get_ticks() + 7000}
         if r > 0.7: return {"pos": pos, "type": 2, "expires": None}
-        if r > 0.5: return {"pos": pos, "type": 4, "expires": None} # Яд
+        if r > 0.5: return {"pos": pos, "type": 4, "expires": pygame.time.get_ticks() + 6000} # Яд
         return {"pos": pos, "type": 1, "expires": None}
 
     # Power-ups (Type: 1-Speed, 2-Slow, 3-Shield)
@@ -94,6 +94,14 @@ def run_game(screen, username, settings):
     food = create_food()
     active_powerup = None
     next_powerup_spawn = pygame.time.get_ticks() + random.randint(5000, 15000)
+
+    music_idx = settings.get("music_index", 0)
+    if music_idx != -1:
+        try:
+            pygame.mixer.music.load(MUSIC_TRACKS[music_idx])
+            pygame.mixer.music.play(-1)
+        except:
+            print("Ошибка загрузки музыки в игре")
 
     running = True
     while running:
@@ -130,6 +138,9 @@ def run_game(screen, username, settings):
                 collision = True
 
         if collision:
+            pygame.mixer.music.stop()
+            from main import defeat_sound 
+            defeat_sound.play()
             save_score(username, score, level)
             return "GAMEOVER", score, level, personal_best
 
@@ -143,9 +154,12 @@ def run_game(screen, username, settings):
             if food["type"] == 4: # ЯД
                 snake_len -= 2
                 if snake_len <= 1:
+                    pygame.mixer.music.stop()
+                    from main import defeat_sound 
+                    defeat_sound.play()
                     save_score(username, score, level)
                     return "GAMEOVER", score, level, personal_best
-                # При похудении удаляем лишние сегменты из списка
+                # При уменьшении удаляем лишние сегменты из списка
                 snake_list = snake_list[-snake_len:]
             else:
                 score += food["type"] * 10
@@ -190,6 +204,21 @@ def run_game(screen, username, settings):
         screen.fill(DARK_GRAY)
         # Игровая область (черный квадрат)
         pygame.draw.rect(screen, BLACK, [FIELD_X, FIELD_Y, PLAY_WIDTH, PLAY_HEIGHT])
+
+        f_colors = {1: RED, 2: ORANGE, 3: GOLD, 4: DARK_RED}
+        
+        draw_it = True
+        # Если у еды есть таймер (Золото или Яд)
+        if food["expires"]:
+            now = pygame.time.get_ticks()
+            time_left = food["expires"] - now
+            # Если осталось меньше 2 секунд, заставляем мигать
+            # (time_left // 200) % 2 == 0 создает эффект "вкл/выкл" каждые 200 мс
+            if time_left < 2000 and (time_left // 200) % 2 == 0:
+                draw_it = False
+        
+        if draw_it:
+            pygame.draw.ellipse(screen, f_colors[food["type"]], [food["pos"][0] + FIELD_X, food["pos"][1] + FIELD_Y, GRID_SIZE, GRID_SIZE])
         
         if settings["grid_overlay"]:
             for x in range(0, PLAY_WIDTH + GRID_SIZE, GRID_SIZE):
@@ -200,10 +229,6 @@ def run_game(screen, username, settings):
         # Стены
         for w in walls:
             pygame.draw.rect(screen, BROWN, [w[0] + FIELD_X, w[1] + FIELD_Y, GRID_SIZE, GRID_SIZE])
-
-        # Еда
-        f_colors = {1: RED, 2: ORANGE, 3: GOLD, 4: DARK_RED}
-        pygame.draw.ellipse(screen, f_colors[food["type"]], [food["pos"][0] + FIELD_X, food["pos"][1] + FIELD_Y, GRID_SIZE, GRID_SIZE])
 
         # Power-up
         if active_powerup:

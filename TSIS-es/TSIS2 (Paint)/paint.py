@@ -1,6 +1,7 @@
 import pygame
 from datetime import datetime
 import tools # Импортируем файл с инструментами
+import os
 
 # Инициализация
 pygame.init()
@@ -76,8 +77,19 @@ while running:
                 if pygame.K_1 <= event.key <= pygame.K_6:
                     brush_size = BRUSH_SIZES[event.key - pygame.K_1]
                 if event.key == pygame.K_s and (pygame.key.get_mods() & pygame.KMOD_CTRL):
-                    pygame.image.save(canvas, f"paint_{datetime.now().strftime('%H-%M-%S_%d-%m-%Y')}.png")
-                    save_notify_time = current_time + 2000   # Показать уведомление на 2 секунды
+                    # 1. Получаем путь к папке, в которой лежит этот запущенный файл
+                    project_folder = os.path.dirname(os.path.abspath(__file__))
+    
+                    # 2. Формируем имя файла
+                    filename = f"paint_{datetime.now().strftime('%H-%M-%S_%d-%m-%Y')}.png"
+    
+                    # 3. Соединяем путь к папке и имя файла в один полный путь
+                    full_path = os.path.join(project_folder, filename)
+    
+                    # 4. Сохраняем по полному пути
+                    pygame.image.save(canvas, full_path)
+    
+                    save_notify_time = current_time + 2000 # Уведомление
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.pos[1] < PANEL_HEIGHT:

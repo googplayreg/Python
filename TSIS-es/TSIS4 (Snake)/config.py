@@ -48,6 +48,11 @@ FIELD_Y = PADDING
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
 
+MUSIC_TRACKS = [
+    "TSIS-es/TSIS4 (Snake)/assets/Axel F.mp3", 
+    "TSIS-es/TSIS4 (Snake)/assets/wind warrior.mp3"
+]
+
 def load_settings():
     if os.path.exists(SETTINGS_FILE):
         try:
@@ -55,7 +60,8 @@ def load_settings():
                 return json.load(f)
         except:
             pass
-    return {"snake_color": [0, 255, 0], "grid_overlay": True, "sound": True}
+    # Добавляем поле music_index: 0 - Track 1, 1 - Track 2, -1 - OFF
+    return {"snake_color": [0, 255, 0], "grid_overlay": True, "sound": True, "music_index": 0}
 
 def save_settings(settings_dict):
     with open(SETTINGS_FILE, 'w') as f:

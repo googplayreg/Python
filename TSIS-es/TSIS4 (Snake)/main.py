@@ -15,6 +15,8 @@ font_main = pygame.font.SysFont("bahnschrift", 40)
 font_sub = pygame.font.SysFont("bahnschrift", 25)
 font_button = pygame.font.SysFont("bahnschrift", 30)
 
+defeat_sound = pygame.mixer.Sound("TSIS-es/TSIS4 (Snake)/assets/game over.mp3")
+
 class Button:
     """Класс для создания интерактивных кнопок"""
     def __init__(self, text, x, y, w, h, color, hover_color):
@@ -110,7 +112,6 @@ def leaderboard_screen():
         clock.tick(30)
 
 def settings_screen():
-    """Экран настроек (JSON)"""
     global USER_SETTINGS
     running = True
     
@@ -120,7 +121,16 @@ def settings_screen():
     for i, (name, val) in enumerate(colors.items()):
         color_btns.append((Button(name, 150 + i*200, 250, 150, 50, DARK_GRAY, val), val))
 
-    grid_btn = Button(f"GRID: {'ON' if USER_SETTINGS['grid_overlay'] else 'OFF'}", WINDOW_WIDTH//2 - 150, 350, 300, 50, GRAY, BLACK)
+    # Кнопка сетки
+    grid_btn = Button(f"GRID: {'ON' if USER_SETTINGS['grid_overlay'] else 'OFF'}", 100, 350, 300, 50, GRAY, BLACK)
+    
+    # Кнопка музыки
+    def get_music_text():
+        idx = USER_SETTINGS.get("music_index", 0)
+        if idx == -1: return "MUSIC: OFF"
+        return f"MUSIC: TRACK {idx + 1}"
+
+    music_btn = Button(get_music_text(), 450, 350, 300, 50, GRAY, BLACK)
     save_btn = Button("SAVE & BACK", WINDOW_WIDTH//2 - 150, 500, 300, 60, (0, 100, 0), (0, 150, 0))
 
     while running:
@@ -128,9 +138,9 @@ def settings_screen():
         draw_text("SETTINGS", font_main, WHITE, WINDOW_WIDTH//2, 80, True)
         draw_text("Pick Snake Color:", font_sub, WHITE, WINDOW_WIDTH//2, 200, True)
 
-        for btn, val in color_btns:
-            btn.draw(screen)
+        for btn, val in color_btns: btn.draw(screen)
         grid_btn.draw(screen)
+        music_btn.draw(screen)
         save_btn.draw(screen)
 
         for event in pygame.event.get():
@@ -143,6 +153,16 @@ def settings_screen():
                 USER_SETTINGS["grid_overlay"] = not USER_SETTINGS["grid_overlay"]
                 grid_btn.text = f"GRID: {'ON' if USER_SETTINGS['grid_overlay'] else 'OFF'}"
             
+            if music_btn.is_clicked(event):
+                # Циклическое переключение: 0 -> 1 -> -1 -> 0
+                idx = USER_SETTINGS.get("music_index", 0)
+                if idx == 0: idx = 1
+                elif idx == 1: idx = -1
+                else: idx = 0
+                USER_SETTINGS["music_index"] = idx
+                music_btn.text = get_music_text()
+                update_music() # Сразу применяем музыку
+
             if save_btn.is_clicked(event):
                 save_settings(USER_SETTINGS)
                 running = False
@@ -174,6 +194,19 @@ def game_over_screen(score, lvl, best):
         pygame.display.update()
         clock.tick(30)
 
+def update_music():
+    """Обновляет фоновую музыку согласно настройкам"""
+    idx = USER_SETTINGS.get("music_index", 0)
+    
+    if idx == -1:
+        pygame.mixer.music.stop()
+    else:
+        try:
+            pygame.mixer.music.load(MUSIC_TRACKS[idx])
+            pygame.mixer.music.play(-1)
+        except pygame.error:
+            print(f"Файл {MUSIC_TRACKS[idx]} не найден!")
+
 def main_menu():
     """Главное меню"""
     init_db() # Создаем таблицы при запуске
@@ -187,7 +220,7 @@ def main_menu():
     while True:
         screen.fill(DARK_GRAY)
         draw_text(f"WELCOME, {username}!", font_main, GOLD, WINDOW_WIDTH//2, 100, True)
-        
+
         play_btn.draw(screen)
         lb_btn.draw(screen)
         set_btn.draw(screen)
@@ -206,7 +239,9 @@ def main_menu():
                         break
             
             if lb_btn.is_clicked(event): leaderboard_screen()
-            if set_btn.is_clicked(event): settings_screen()
+            if set_btn.is_clicked(event): 
+                settings_screen()
+                pygame.mixer.music.stop()
             if quit_btn.is_clicked(event): pygame.quit(); sys.exit()
 
         pygame.display.update()

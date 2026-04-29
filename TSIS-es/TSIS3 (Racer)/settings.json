@@ -1,7 +1,7 @@
 {
     "music_volume": 0.5,
-    "music_track": "OFF",
-    "car_image": "TSIS-es/TSIS3 (Racer)/assets/player2.png",
-    "difficulty": "Hard",
+    "music_track": "Track 1",
+    "car_image": "TSIS-es/TSIS3 (Racer)/assets/player1.png",
+    "difficulty": "Medium",
     "username": "Daniyal"
 }
